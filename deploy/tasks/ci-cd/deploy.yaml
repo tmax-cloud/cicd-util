@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1alpha1
+kind: ClusterTask
+metadata:
+  name: generate-and-deploy-using-kubectl-test
+spec:
+  params:
+    - name: app-name
+      description: Deployment name
+    - name: image-url
+      description: Updated image url:tag
+      default: $(inputs.resources.image.url)
+    - name: deploy-cfg-name
+      description: Deployment configmap name
+      default: ""
+    - name: deploy-env-json
+      description: Deployment environment variable in JSON object form
+      default: "{}"
+  resources:
+    inputs:
+      - name: image
+        type: image
+  steps:
+    - name: create-yaml
+      image: tmaxcloudck/cicd-util:1.1.0
+      imagePullPolicy: Always
+      args:
+        - "make-deployment"
+      volumeMounts:
+        - mountPath: /generate
+          name: generate
+      env:
+        - name: APP_NAME
+          value: $(inputs.params.app-name)
+        - name: IMAGE_URL
+          value: $(inputs.params.image-url)
+        - name: CONFIGMAP_NAME
+          value: $(inputs.params.deploy-cfg-name)
+        - name: DEPLOY_ENV_JSON
+          value: $(inputs.params.deploy-env-json)
+    - name: run-kubectl
+      image: tmaxcloudck/cicd-util:1.1.0
+      command:
+        - "kubectl"
+      args:
+        - apply
+        - -f
+        - /generate/deployment.yaml
+      volumeMounts:
+        - mountPath: /generate
+          name: generate
+  volumes:
+    - emptyDir: {}
+      name: generate
+
