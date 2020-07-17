@@ -40,7 +40,7 @@ func PostReq(uri string, header, params map[string]string) (string, error) {
 
 	if math.Floor(float64(resp.StatusCode)/100.) == 2 {
 		return string(body), nil
-	}else{
+	} else {
 		return "", fmt.Errorf("error code: %d, message: %s", resp.StatusCode, string(body))
 	}
 }
@@ -51,7 +51,7 @@ func PodIp() (string, error) {
 		return "", err
 	}
 
-	reg, err := regexp.Compile("([^ \t]*)[ \t]+"+hostName)
+	reg, err := regexp.Compile("([^ \t]*)[ \t]+" + hostName)
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +78,7 @@ func PodIp() (string, error) {
 
 	if ip == "" {
 		return "", fmt.Errorf("cannot find current ip")
-	}else {
+	} else {
 		return ip, nil
 	}
 }
