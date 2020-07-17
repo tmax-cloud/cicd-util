@@ -24,8 +24,9 @@ func PostReq(uri string, header, params map[string]string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	for k, v := range header {
-		req.Header.Add(k, v)
+		req.Header.Set(k, v)
 	}
 
 	resp, err := c.Do(req)
