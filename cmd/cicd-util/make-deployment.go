@@ -112,6 +112,11 @@ func makeDeployment() {
 	// Set default values
 	setDefaults(depSpec, appName, imageUrl)
 
+	// Delete ImagePullSecrets if it is empty...
+	if len(depSpec.Spec.Template.Spec.ImagePullSecrets) == 1 && depSpec.Spec.Template.Spec.ImagePullSecrets[0].Name == "" {
+		depSpec.Spec.Template.Spec.ImagePullSecrets = depSpec.Spec.Template.Spec.ImagePullSecrets[:0]
+	}
+
 	// Marshal into YAML
 	serializer := k8sjson.NewSerializerWithOptions(k8sjson.DefaultMetaFactory, nil, nil, k8sjson.SerializerOptions{Yaml: true, Pretty: true})
 	buf := new(bytes.Buffer)
