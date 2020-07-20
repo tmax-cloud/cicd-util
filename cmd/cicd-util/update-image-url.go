@@ -37,7 +37,7 @@ func updateImageUrl() {
 
 	if tag != "" {
 		log.Info(fmt.Sprintf("image url %s already contains tag... skipping tagging", originalUrl))
-		writeUrlToFile(targetFilePath, baseUrl, "")
+		writeUrlToFile(targetFilePath, originalUrl, "")
 		os.Exit(0)
 	}
 
