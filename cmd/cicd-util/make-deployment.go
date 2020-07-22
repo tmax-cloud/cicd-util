@@ -99,8 +99,6 @@ func makeDeployment() {
 			if err := c.Update(context.TODO(), cm); err != nil {
 				utils.ExitError(log, err, "cannot update configMap")
 			}
-		} else {
-
 		}
 	}
 

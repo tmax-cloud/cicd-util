@@ -11,7 +11,6 @@ import (
 )
 
 var resultPath string
-var outputPath string
 
 func launchWebhook() {
 	var err error
@@ -37,7 +36,7 @@ func launchWebhook() {
 	}
 
 	// Router
-	log.Info(fmt.Sprintf("Handler set to /"))
+	log.Info("Handler set to /")
 	http.HandleFunc("/", handler)
 
 	// Start server
