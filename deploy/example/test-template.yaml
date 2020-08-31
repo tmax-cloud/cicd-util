@@ -39,35 +39,7 @@ data:
           - ports:
             - containerPort: 8080
 ---
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineResource
-metadata:
-  name: apache-sample-app-input-git
-  namespace: default
-  labels:
-    app: apache-sample-app
-spec:
-  type: git
-  params:
-    - name: revision
-      value: master
-    - name: url
-      value: https://github.com/microsoft/project-html-website
----
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineResource
-metadata:
-  name: apache-sample-app-output-image
-  namespace: default
-  labels:
-    app: apache-sample-app
-spec:
-  type: image
-  params:
-    - name: url
-      value: 172.22.11.2:30500/test-apache:2333
----
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: apache-sample-app-pipeline
@@ -75,11 +47,6 @@ metadata:
   labels:
     app: apache-sample-app
 spec:
-  resources:
-    - name: source-repo
-      type: git
-    - name: image
-      type: image
   params:
     - name: app-name
       type: string
@@ -88,11 +55,37 @@ spec:
       description: Configmap name for description
     - name: deploy-env-json
       description: Deployment environment variable in JSON object form
+    - name: git-url
+      description: Git url
+    - name: git-rev
+      description: Git revision
+    - name: image-url
+      description: Image url
+  workspaces:
+    - name: git-source
+      description: The git repo will be cloned onto the volume backing this workspace
   tasks:
+    - name: git-clone
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      workspaces:
+        - name: output
+          workspace: git-source
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-rev)
     - name: build-source
       taskRef:
-        name: s2i-test
+        name: s2i
         kind: ClusterTask
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: git-source
+          workspace: git-source
       params:
         - name: BUILDER_IMAGE
           value: tmaxcloudck/s2i-apache:2.4
@@ -100,36 +93,14 @@ spec:
           value: ''
         - name: REGISTRY_SECRET_NAME
           value: ''
-      resources:
-        inputs:
-          - name: source
-            resource: source-repo
-        outputs:
-          - name: image
-            resource: image
-    - name: scan-and-sign-image
-      taskRef:
-        name: analyze-image-vulnerabilities
-        kind: ClusterTask
-      resources:
-        inputs:
-          - name: scanned-image
-            resource: image
-            from:
-              - build-source
-      params:
-        - name: image-url
-          value: $(tasks.build-source.results.image-url)
+        - name: IMAGE_URL
+          value: $(params.image-url)
     - name: deploy
       taskRef:
-        name: generate-and-deploy-using-kubectl-test
+        name: generate-and-deploy-using-kubectl
         kind: ClusterTask
       runAfter:
-        - scan-and-sign-image
-      resources:
-        inputs:
-          - name: image
-            resource: image
+        - build-source
       params:
         - name: app-name
           value: $(params.app-name)
@@ -140,7 +111,7 @@ spec:
         - name: deploy-env-json
           value: $(params.deploy-env-json)
 ---
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: apache-sample-app-pipeline-run-1
@@ -151,13 +122,16 @@ spec:
   serviceAccountName: tutorial-service
   pipelineRef:
     name: apache-sample-app-pipeline
-  resources:
-    - name: source-repo
-      resourceRef:
-        name: apache-sample-app-input-git
-    - name: image
-      resourceRef:
-        name: apache-sample-app-output-image
+  workspaces:
+    - name: git-source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: csi-cephfs-sc
+          resources:
+            requests:
+              storage: 500Mi
   params:
     - name: app-name
       value: apache-sample-app
@@ -165,3 +139,9 @@ spec:
       value: apache-sample-app-deploy-cfg
     - name: deploy-env-json
       value: "{'EX':'EXVAL', 'EX2': 'EXVAL2'}"
+    - name: git-url
+      value: https://github.com/microsoft/project-html-website
+    - name: git-rev
+      value: master
+    - name: image-url
+      value: 172.22.11.2:30500/test-apache

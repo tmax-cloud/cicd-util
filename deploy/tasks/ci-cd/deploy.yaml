@@ -1,24 +1,19 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
 metadata:
-  name: generate-and-deploy-using-kubectl-test
+  name: generate-and-deploy-using-kubectl
 spec:
   params:
     - name: app-name
       description: Deployment name
     - name: image-url
       description: Updated image url:tag
-      default: $(inputs.resources.image.url)
     - name: deploy-cfg-name
       description: Deployment configmap name
       default: ""
     - name: deploy-env-json
       description: Deployment environment variable in JSON object form
       default: "{}"
-  resources:
-    inputs:
-      - name: image
-        type: image
   steps:
     - name: create-yaml
       image: tmaxcloudck/cicd-util:1.1.0

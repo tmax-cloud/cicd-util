@@ -11,11 +11,11 @@ import (
 	"github.com/cqbqdd11519/cicd-util/pkg/utils"
 )
 
-const (
-	GitPath = "/workspace/source"
-)
-
 func updateImageUrl() {
+	sourcePath := os.Getenv("SOURCE_PATH")
+	if sourcePath == "" {
+		utils.ExitError(log, fmt.Errorf("environment not given"), "SOURCE_PATH should be given")
+	}
 	originalUrl := os.Getenv("IMAGE_URL")
 	if originalUrl == "" {
 		utils.ExitError(log, fmt.Errorf("environment not given"), "IMAGE_URL should be given")
@@ -41,7 +41,7 @@ func updateImageUrl() {
 		os.Exit(0)
 	}
 
-	repo, err := git.PlainOpen(GitPath)
+	repo, err := git.PlainOpen(sourcePath)
 	if err != nil {
 		utils.ExitError(log, err, "cannot open git repository")
 	}
