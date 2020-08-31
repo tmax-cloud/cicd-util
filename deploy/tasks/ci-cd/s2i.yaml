@@ -1,10 +1,12 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
 metadata:
-  name: s2i-test
+  name: s2i
 spec:
   description: S2I Task
   params:
+    - name: IMAGE_URL
+      description: Image to be saved
     - description: The location of the s2i builder image.
       name: BUILDER_IMAGE
     - default: .
@@ -22,13 +24,9 @@ spec:
     - name: PACKAGE_SERVER_URL
       description: URL (including protocol, ip, port, and path) of private package server (e.g., devpi, pypi, verdaccio, ...)
       default: ''
-  resources:
-    inputs:
-      - name: source
-        type: git
-    outputs:
-      - name: image
-        type: image
+  workspaces:
+    - name: git-source
+      description: Git source directory
   results:
     - name: image-url
       description: Tag-updated image url
@@ -40,8 +38,10 @@ spec:
       args:
         - update-image-url
       env:
+        - name: SOURCE_PATH
+          value: $(workspaces.git-source.path)
         - name: IMAGE_URL
-          value: $(outputs.resources.image.url)
+          value: $(params.IMAGE_URL)
         - name: TARGET_FILE
           value: $(results.image-url.path)
     - name: parse-registry-cred
@@ -85,7 +85,7 @@ spec:
       volumeMounts:
         - mountPath: /gen-source
           name: gen-source
-      workingdir: /workspace/source
+      workingdir: $(workspaces.git-source.path)
     - name: build
       image: quay.io/buildah/stable
       script: |
