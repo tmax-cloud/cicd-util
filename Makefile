@@ -67,3 +67,13 @@ test-unit:
 
 test-lint:
 	golangci-lint run ./... -v -E gofmt --timeout 1h0m0s
+
+
+.PHONY: builder-images
+builder-images:
+	make -C builder-image/apache
+	make -C builder-image/django
+	make -C builder-image/jeus
+	make -C builder-image/nodejs
+	make -C builder-image/tomcat
+	make -C builder-image/wildfly

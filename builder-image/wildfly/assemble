@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export CONFIG_ADJUSTMENT_MODE=cli
+
+# clone source code from git
+if [ -n "$GIT_URL" ]; then
+  echo -n "Git clone from $GIT_URL..."
+  git clone $GIT_URL /tmp/src
+fi
+
+. "${JBOSS_CONTAINER_WILDFLY_S2I_MODULE}/assemble.sh"
+
+# rename output war to ROOT.war
+if [ -n "$WAR_NAME" ]; then
+  echo -n "Renaming war from $WAR_NAME to ROOT.war...\n"
+  mv /deployments/$WAR_NAME /deployments/ROOT.war
+fi

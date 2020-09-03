@@ -1,0 +1,15 @@
+REGISTRY := tmaxcloudck
+IMAGE     = s2i-apache
+VERSION  := 2.4
+
+URL = $(REGISTRY)/$(IMAGE):$(VERSION)
+
+
+.PHONY: all build push
+all: build push
+
+build:
+	docker build -t $(URL) -f ./httpd-container/2.4/Dockerfile ./httpd-container/2.4/
+
+push:
+	docker push $(URL)

@@ -1,0 +1,8 @@
+[submodule "builder-image/apache/httpd-container"]
+	path = builder-image/apache/httpd-container
+	url = https://github.com/sclorg/httpd-container
+	branch = 80c4587c901824215c0a3a259374b06f957a2d9f
+[submodule "builder-image/tomcat/s2i-tomcat"]
+	path = builder-image/tomcat/s2i-tomcat
+	url = https://github.com/Sarcouy/s2i-tomcat
+	branch = eebcf559e2114558c1e75e6b5e4b8233b5ecae3b
