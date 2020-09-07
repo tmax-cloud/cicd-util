@@ -34,6 +34,16 @@ image-sonar-client:
 	docker build -f build/sonar-client/Dockerfile -t $(SONAR_CLIENT_IMAGE) .
 
 
+.PHONY: tag-latest tag-latest-cicd-util tag-latest-sonar-client
+tag-latest: tag-latest-cicd-util tag-latest-sonar-client
+
+tag-latest-cicd-util:
+	docker tag $(CICD_UTIL_IMAGE) $(REGISTRY)/$(CICD_UTIL_IMAGE_NAME):latest
+
+tag-latest-sonar-client:
+	docker tag $(SONAR_CLIENT_IMAGE) $(REGISTRY)/$(SONAR_CLIENT_IMAGE_NAME):latest
+
+
 .PHONY: push push-cicd-util push-sonar-client
 push: push-cicd-util push-sonar-client
 
@@ -42,6 +52,16 @@ push-cicd-util:
 
 push-sonar-client:
 	docker push $(SONAR_CLIENT_IMAGE)
+
+
+.PHONY: push-latest push-latest-cicd-util push-latest-sonar-client
+push-latest: push-latest-cicd-util push-latest-sonar-client
+
+push-latest-cicd-util:
+	docker push $(REGISTRY)/$(CICD_UTIL_IMAGE_NAME):latest
+
+push-latest-sonar-client:
+	docker push $(REGISTRY)/$(SONAR_CLIENT_IMAGE_NAME):latest
 
 
 .PHONY: test test-verify save-sha-mod compare-sha-mod verify test-unit test-lint
