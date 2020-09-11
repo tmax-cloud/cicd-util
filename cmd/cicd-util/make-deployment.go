@@ -102,13 +102,13 @@ func makeDeployment() {
 		}
 	}
 
+	// Set default values
+	setDefaults(depSpec, appName, imageUrl)
+
 	// Add additional env for deployment refresh
 	nowTime := time.Now()
 	timeEnv := corev1.EnvVar{Name: "DEPLOY_TIME", Value: nowTime.Format("2006-01-02 15:04:05")}
 	depSpec.Spec.Template.Spec.Containers[0].Env = append(depSpec.Spec.Template.Spec.Containers[0].Env, timeEnv)
-
-	// Set default values
-	setDefaults(depSpec, appName, imageUrl)
 
 	// Delete ImagePullSecrets if it is empty...
 	if len(depSpec.Spec.Template.Spec.ImagePullSecrets) == 1 && depSpec.Spec.Template.Spec.ImagePullSecrets[0].Name == "" {
