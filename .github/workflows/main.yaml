@@ -33,7 +33,6 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - uses: shivanshs9/setup-k8s-operator-sdk@v1
       - name: build and push
         run: |
           docker login -u=tmaxcloudck -p=${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -44,7 +43,6 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - uses: shivanshs9/setup-k8s-operator-sdk@v1
       - name: build
         run: |
           docker login -u=tmaxcloudck -p=${{ secrets.DOCKER_HUB_PASSWORD }}
