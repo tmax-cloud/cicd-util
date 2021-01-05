@@ -1,7 +1,7 @@
 PACKAGE_NAME = github.com/cqbqdd11519/cicd-util
 
-REGISTRY := tmaxcloudck
-VERSION  := latest
+REGISTRY ?= tmaxcloudck
+VERSION  ?= latest
 
 CICD_UTIL_IMAGE_NAME = cicd-util
 CICD_UTIL_IMAGE      = $(REGISTRY)/$(CICD_UTIL_IMAGE_NAME):$(VERSION)
