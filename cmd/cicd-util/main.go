@@ -28,6 +28,10 @@ func main() {
 		parseRegistryCred()
 	case "update-image-url":
 		updateImageUrl()
+	case "scan-image":
+		scanImage()
+	case "sign-image":
+		signImage()
 	default:
 		utils.ExitError(log, fmt.Errorf("command should be one if [make-deployment|parse-registry-cred|update-image-url]"), "not supported")
 	}
