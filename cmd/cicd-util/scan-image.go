@@ -17,7 +17,7 @@ import (
 )
 
 func scanImage() {
-	NAME := "cicd-test"
+	NAME := "cicd-test-" + utils.RandomString(5)
 	ns, err := utils.Namespace()
 	if err != nil {
 		utils.ExitError(log, err, "cannot get current namespace")
