@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/cqbqdd11519/cicd-util/pkg/utils"
 	regv1 "github.com/tmax-cloud/registry-operator/api/v1"
+	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -54,18 +56,32 @@ func signImage() {
 			log.Error(err, "")
 		} else if req.Status.ImageSignResponse == nil {
 			// Do nothing
-		} else if req.Status.ImageSignResponse.Result == regv1.ResponseResultSuccess {
-			log.Info("Successfully signed image")
-			ret = 0
-		} else if req.Status.ImageSignResponse.Result == regv1.ResponseResultFail {
-			log.Info("Error while signing image")
-			ret = 1
+		} else {
+			printSignStatus(req)
+			switch req.Status.ImageSignResponse.Result {
+			case regv1.ResponseResultSuccess:
+				log.Info("Successfully signed image")
+				ret = 0
+			case regv1.ResponseResultFail:
+				log.Info("Error while signing image")
+				ret = 1
+			}
 		}
 
 		if ret >= 0 {
-			os.Exit(exitWithDelete(c, req, ret))
+			os.Exit(ret)
 		}
 
 		time.Sleep(5 * time.Second)
 	}
+}
+
+func printSignStatus(req *regv1.ImageSignRequest) {
+	b, err := yaml.Marshal(req.Status)
+	if err != nil {
+		log.Error(err, "")
+	}
+
+	fmt.Println("RESULT:")
+	fmt.Println(string(b))
 }

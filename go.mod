@@ -11,6 +11,7 @@ require (
 	github.com/tidwall/gjson v1.6.0
 	github.com/tmax-cloud/image-scanning-operator v0.0.0-20210104082436-ce04844b12a1
 	github.com/tmax-cloud/registry-operator v0.0.0-20210104020005-a0aaeeb3e180
+	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.19.4
 	k8s.io/apimachinery v0.19.4
 	sigs.k8s.io/controller-runtime v0.6.4
@@ -18,9 +19,9 @@ require (
 
 replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.1.0
+	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.0
 	k8s.io/api => k8s.io/api v0.18.8
 	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
 	k8s.io/client-go => k8s.io/client-go v0.18.8
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.6.4
-	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.0
 )

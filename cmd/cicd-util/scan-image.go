@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/cqbqdd11519/cicd-util/pkg/utils"
 	scanv1 "github.com/tmax-cloud/image-scanning-operator/api/v1"
+	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -46,6 +48,7 @@ func scanImage() {
 			ImageUrl:    img,
 			ForceNonSSL: true,
 			Insecure:    true,
+			Webhook:     true,
 		},
 	}
 
@@ -58,38 +61,45 @@ func scanImage() {
 		ret := -1
 		if err := c.Get(context.Background(), types.NamespacedName{Name: NAME, Namespace: ns}, req); err != nil {
 			log.Error(err, "")
-		} else if req.Status.Status == scanv1.ScanningSuccess {
-			total := 0
-			for k, v := range req.Status.Summary {
-				if strings.ToLower(k) == "negligible" {
-					continue
+		} else {
+			printScanStatus(req)
+			switch req.Status.Status {
+			case scanv1.ScanningSuccess:
+				total := 0
+				for k, v := range req.Status.Summary {
+					if strings.ToLower(k) == "negligible" {
+						continue
+					}
+					total += v
 				}
-				total += v
-			}
 
-			if total >= threshold {
-				log.Info("The number of vulnerabilities is greater than threshold")
+				if total >= threshold {
+					log.Info(fmt.Sprintf("The number of vulnerabilities (%d) is greater than threshold (%d)", total, threshold))
+					ret = 1
+				} else {
+					log.Info(fmt.Sprintf("The number of vulnerabilities (%d) is less than threshold (%d)"), total, threshold)
+					ret = 0
+				}
+			case scanv1.ScanningError:
+				log.Info("Error while scanning image")
 				ret = 1
-			} else {
-				log.Info("The number of vulnerabilities is less than threshold")
-				ret = 0
 			}
-		} else if req.Status.Status == scanv1.ScanningError {
-			log.Info("Error while scanning image")
-			ret = 1
 		}
 
 		if ret >= 0 {
-			os.Exit(exitWithDelete(c, req, ret))
+			os.Exit(ret)
 		}
 
 		time.Sleep(5 * time.Second)
 	}
 }
 
-func exitWithDelete(c client.Client, req runtime.Object, ret int) int {
-	if err := c.Delete(context.Background(), req); err != nil {
+func printScanStatus(req *scanv1.ImageScanning) {
+	b, err := yaml.Marshal(req.Status)
+	if err != nil {
 		log.Error(err, "")
 	}
-	return ret
+
+	fmt.Println("RESULT:")
+	fmt.Println(string(b))
 }
