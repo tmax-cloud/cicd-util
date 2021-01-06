@@ -60,7 +60,7 @@ func scanImage() {
 	for {
 		ret := -1
 		if err := c.Get(context.Background(), types.NamespacedName{Name: NAME, Namespace: ns}, req); err != nil {
-			log.Error(err, "")
+			fmt.Println(err.Error())
 		} else {
 			printScanStatus(req)
 			switch req.Status.Status {
@@ -74,14 +74,14 @@ func scanImage() {
 				}
 
 				if total >= threshold {
-					log.Info(fmt.Sprintf("The number of vulnerabilities (%d) is greater than threshold (%d)", total, threshold))
+					fmt.Printf("The number of vulnerabilities (%d) is greater than threshold (%d)\n", total, threshold)
 					ret = 1
 				} else {
-					log.Info(fmt.Sprintf("The number of vulnerabilities (%d) is less than threshold (%d)"), total, threshold)
+					fmt.Printf("The number of vulnerabilities (%d) is less than threshold (%d)\n", total, threshold)
 					ret = 0
 				}
 			case scanv1.ScanningError:
-				log.Info("Error while scanning image")
+				fmt.Println("Error while scanning image")
 				ret = 1
 			}
 		}
@@ -97,7 +97,7 @@ func scanImage() {
 func printScanStatus(req *scanv1.ImageScanning) {
 	b, err := yaml.Marshal(req.Status)
 	if err != nil {
-		log.Error(err, "")
+		fmt.Println(err.Error())
 	}
 
 	fmt.Println("RESULT:")

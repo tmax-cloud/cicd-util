@@ -53,17 +53,17 @@ func signImage() {
 	for {
 		ret := -1
 		if err := c.Get(context.Background(), types.NamespacedName{Name: NAME, Namespace: ns}, req); err != nil {
-			log.Error(err, "")
+			fmt.Println(err.Error())
 		} else if req.Status.ImageSignResponse == nil {
 			// Do nothing
 		} else {
 			printSignStatus(req)
 			switch req.Status.ImageSignResponse.Result {
 			case regv1.ResponseResultSuccess:
-				log.Info("Successfully signed image")
+				fmt.Println("Successfully signed image")
 				ret = 0
 			case regv1.ResponseResultFail:
-				log.Info("Error while signing image")
+				fmt.Println("Error while signing image")
 				ret = 1
 			}
 		}
@@ -79,7 +79,7 @@ func signImage() {
 func printSignStatus(req *regv1.ImageSignRequest) {
 	b, err := yaml.Marshal(req.Status)
 	if err != nil {
-		log.Error(err, "")
+		fmt.Println(err.Error())
 	}
 
 	fmt.Println("RESULT:")
