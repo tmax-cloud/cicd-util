@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/cqbqdd11519/cicd-util/pkg/utils"
-	scanv1 "github.com/tmax-cloud/image-scanning-operator/api/v1"
+	regv1 "github.com/tmax-cloud/registry-operator/api/v1"
 	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -33,7 +33,7 @@ func scanImage() {
 	}
 
 	scheme := runtime.NewScheme()
-	if err := scanv1.AddToScheme(scheme); err != nil {
+	if err := regv1.AddToScheme(scheme); err != nil {
 		utils.ExitError(log, err, "")
 	}
 
@@ -42,13 +42,12 @@ func scanImage() {
 		utils.ExitError(log, err, "cannot get k8s client")
 	}
 
-	req := &scanv1.ImageScanning{
+	req := &regv1.ImageScanRequest{
 		ObjectMeta: metav1.ObjectMeta{Name: NAME, Namespace: ns},
-		Spec: scanv1.ImageScanningSpec{
+		Spec: regv1.ImageScanRequestSpec{
 			ImageUrl:    img,
 			ForceNonSSL: true,
 			Insecure:    true,
-			Webhook:     true,
 		},
 	}
 
@@ -64,7 +63,7 @@ func scanImage() {
 		} else {
 			printScanStatus(req)
 			switch req.Status.Status {
-			case scanv1.ScanningSuccess:
+			case regv1.ScanRequestSuccess:
 				total := 0
 				for k, v := range req.Status.Summary {
 					if strings.ToLower(k) == "negligible" {
@@ -80,7 +79,7 @@ func scanImage() {
 					fmt.Printf("The number of vulnerabilities (%d) is less than threshold (%d)\n", total, threshold)
 					ret = 0
 				}
-			case scanv1.ScanningError:
+			case regv1.ScanRequestError:
 				fmt.Println("Error while scanning image")
 				ret = 1
 			}
@@ -94,7 +93,7 @@ func scanImage() {
 	}
 }
 
-func printScanStatus(req *scanv1.ImageScanning) {
+func printScanStatus(req *regv1.ImageScanRequest) {
 	b, err := yaml.Marshal(req.Status)
 	if err != nil {
 		fmt.Println(err.Error())
