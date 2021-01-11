@@ -1,11 +1,11 @@
 diff --git pkg/api/types.go pkg/api/types.go
-index 4deca5af..fefa43b8 100644
+index 4deca5a..fefa43b 100644
 --- pkg/api/types.go
 +++ pkg/api/types.go
 @@ -122,6 +122,9 @@ type Config struct {
  	// Incremental describes whether to try to perform incremental build.
  	Incremental bool
- 
+
 +	// ClearCache describes whether to clean cache or not
 +	ClearCache bool
 +
@@ -13,12 +13,12 @@ index 4deca5af..fefa43b8 100644
  	// artifacts. Tag is used by default if this is not set.
  	IncrementalFromTag string
 diff --git pkg/build/strategies/dockerfile/dockerfile.go pkg/build/strategies/dockerfile/dockerfile.go
-index 7556a357..41d8c719 100644
+index 7556a35..77da4dd 100644
 --- pkg/build/strategies/dockerfile/dockerfile.go
 +++ pkg/build/strategies/dockerfile/dockerfile.go
 @@ -162,7 +162,11 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
  	}
- 
+
  	// main stage of the Dockerfile
 -	buffer.WriteString(fmt.Sprintf("FROM %s\n", config.BuilderImage))
 +	if config.ClearCache {
@@ -26,49 +26,13 @@ index 7556a357..41d8c719 100644
 +	} else {
 +		buffer.WriteString(fmt.Sprintf("FROM %s\n", config.BuilderImage))
 +	}
- 
+
  	imageLabels := util.GenerateOutputImageLabels(builder.sourceInfo, config)
  	for k, v := range config.Labels {
-@@ -177,21 +181,23 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
- 		imageLabels[constants.DestinationLabel] = config.Destination
- 	}
- 
--	if len(imageLabels) > 0 {
--		first := true
--		buffer.WriteString("LABEL ")
--		for k, v := range imageLabels {
--			if !first {
--				buffer.WriteString(fmt.Sprintf(" \\\n      "))
-+	if !config.ClearCache {
-+		if len(imageLabels) > 0 {
-+			first := true
-+			buffer.WriteString("LABEL ")
-+			for k, v := range imageLabels {
-+				if !first {
-+					buffer.WriteString(fmt.Sprintf(" \\\n      "))
-+				}
-+				buffer.WriteString(fmt.Sprintf("%q=%q", k, v))
-+				first = false
- 			}
--			buffer.WriteString(fmt.Sprintf("%q=%q", k, v))
--			first = false
-+			buffer.WriteString("\n")
- 		}
--		buffer.WriteString("\n")
--	}
- 
--	env := createBuildEnvironment(config.WorkingDir, config.Environment)
--	buffer.WriteString(fmt.Sprintf("%s", env))
-+		env := createBuildEnvironment(config.WorkingDir, config.Environment)
-+		buffer.WriteString(fmt.Sprintf("%s", env))
-+	}
- 
- 	// run as root to COPY and chown source content
- 	buffer.WriteString("USER root\n")
-@@ -282,6 +288,28 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
+@@ -282,6 +286,28 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
  		buffer.WriteString("\n")
  	}
- 
+
 +	if config.ClearCache {
 +		buffer.WriteString(fmt.Sprintf("FROM %s\n", config.BuilderImage))
 +
@@ -95,7 +59,7 @@ index 7556a357..41d8c719 100644
  		buffer.WriteString(fmt.Sprintf("CMD %s\n", sanitize(filepath.ToSlash(filepath.Join(scriptsDestDir, "run")))))
  	} else {
 diff --git pkg/cmd/cli/util/util.go pkg/cmd/cli/util/util.go
-index 80b010b8..1d6830ef 100644
+index 80b010b..1d6830e 100644
 --- pkg/cmd/cli/util/util.go
 +++ pkg/cmd/cli/util/util.go
 @@ -19,6 +19,8 @@ func AddCommonFlags(c *cobra.Command, cfg *api.Config) {
