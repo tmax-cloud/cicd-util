@@ -45,9 +45,10 @@ func scanImage() {
 	req := &regv1.ImageScanRequest{
 		ObjectMeta: metav1.ObjectMeta{Name: NAME, Namespace: ns},
 		Spec: regv1.ImageScanRequestSpec{
-			ImageUrl:    img,
-			ForceNonSSL: true,
-			Insecure:    true,
+			ImageUrl:      img,
+			ForceNonSSL:   true,
+			Insecure:      true,
+			ElasticSearch: true,
 		},
 	}
 
