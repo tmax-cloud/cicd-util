@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/cqbqdd11519/cicd-util/pkg/utils"
 	regv1 "github.com/tmax-cloud/registry-operator/api/v1"
-	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -52,6 +51,14 @@ func scanImage() {
 		},
 	}
 
+	reqYaml, err := marshalToYaml(req)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("REQUEST:")
+		fmt.Println(reqYaml)
+	}
+
 	if err := c.Create(context.Background(), req); err != nil {
 		utils.ExitError(log, err, "")
 	}
@@ -62,7 +69,13 @@ func scanImage() {
 		if err := c.Get(context.Background(), types.NamespacedName{Name: NAME, Namespace: ns}, req); err != nil {
 			fmt.Println(err.Error())
 		} else {
-			printScanStatus(req)
+			statusYaml, err := marshalToYaml(req.Status)
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("RESULT:")
+				fmt.Println(statusYaml)
+			}
 			switch req.Status.Status {
 			case regv1.ScanRequestSuccess:
 				total := 0
@@ -92,14 +105,4 @@ func scanImage() {
 
 		time.Sleep(5 * time.Second)
 	}
-}
-
-func printScanStatus(req *regv1.ImageScanRequest) {
-	b, err := yaml.Marshal(req.Status)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	fmt.Println("RESULT:")
-	fmt.Println(string(b))
 }

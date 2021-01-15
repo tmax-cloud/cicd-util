@@ -45,6 +45,14 @@ func signImage() {
 		},
 	}
 
+	reqYaml, err := marshalToYaml(req)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("REQUEST:")
+		fmt.Println(reqYaml)
+	}
+
 	if err := c.Create(context.Background(), req); err != nil {
 		utils.ExitError(log, err, "")
 	}
@@ -57,7 +65,13 @@ func signImage() {
 		} else if req.Status.ImageSignResponse == nil {
 			// Do nothing
 		} else {
-			printSignStatus(req)
+			statusYaml, err := marshalToYaml(req.Status)
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("RESULT:")
+				fmt.Println(statusYaml)
+			}
 			switch req.Status.ImageSignResponse.Result {
 			case regv1.ResponseResultSuccess:
 				fmt.Println("Successfully signed image")
@@ -76,12 +90,11 @@ func signImage() {
 	}
 }
 
-func printSignStatus(req *regv1.ImageSignRequest) {
-	b, err := yaml.Marshal(req.Status)
+func marshalToYaml(obj interface{}) (string, error) {
+	b, err := yaml.Marshal(obj)
 	if err != nil {
-		fmt.Println(err.Error())
+		return "", err
 	}
 
-	fmt.Println("RESULT:")
-	fmt.Println(string(b))
+	return string(b), nil
 }
