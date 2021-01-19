@@ -26,6 +26,8 @@ func scanImage() {
 	utils.GetEnvOrDie("IMAGE_URL", &img, log)
 	utils.GetEnvOrDie("THRESHOLD", &thresholdStr, log)
 
+	imgTok := strings.Split(img, "/")
+
 	threshold, err := strconv.Atoi(thresholdStr)
 	if err != nil {
 		utils.ExitError(log, err, "")
@@ -44,10 +46,13 @@ func scanImage() {
 	req := &regv1.ImageScanRequest{
 		ObjectMeta: metav1.ObjectMeta{Name: NAME, Namespace: ns},
 		Spec: regv1.ImageScanRequestSpec{
-			ImageUrl:      img,
-			ForceNonSSL:   true,
-			Insecure:      true,
-			ElasticSearch: true,
+			ScanTargets: []regv1.ScanTarget{{
+				RegistryURL:   imgTok[0],
+				Images:        []string{strings.Join(imgTok[1:], "/")},
+				ForceNonSSL:   true,
+				Insecure:      true,
+				ElasticSearch: true,
+			}},
 		},
 	}
 
@@ -78,20 +83,23 @@ func scanImage() {
 			}
 			switch req.Status.Status {
 			case regv1.ScanRequestSuccess:
-				total := 0
-				for k, v := range req.Status.Summary {
-					if strings.ToLower(k) == "negligible" {
-						continue
+				for _, summary := range req.Status.Results {
+					total := 0
+					for k, v := range summary.Summary {
+						if strings.ToLower(k) == "negligible" {
+							continue
+						}
+						total += v
 					}
-					total += v
-				}
 
-				if total >= threshold {
-					fmt.Printf("The number of vulnerabilities (%d) is greater than threshold (%d)\n", total, threshold)
-					ret = 1
-				} else {
-					fmt.Printf("The number of vulnerabilities (%d) is less than threshold (%d)\n", total, threshold)
-					ret = 0
+					if total >= threshold {
+						fmt.Printf("The number of vulnerabilities (%d) is greater than threshold (%d)\n", total, threshold)
+						ret = 1
+					} else {
+						fmt.Printf("The number of vulnerabilities (%d) is less than threshold (%d)\n", total, threshold)
+						ret = 0
+					}
+					break
 				}
 			case regv1.ScanRequestError:
 				fmt.Println("Error while scanning image")
