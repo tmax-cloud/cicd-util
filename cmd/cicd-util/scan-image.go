@@ -22,8 +22,9 @@ func scanImage() {
 		utils.ExitError(log, err, "cannot get current namespace")
 	}
 
-	var img, thresholdStr string
+	var img, thresholdStr, credSecret string
 	utils.GetEnvOrDie("IMAGE_URL", &img, log)
+	utils.GetEnvOrDie("CRED_SECRET", &credSecret, log)
 	utils.GetEnvOrDie("THRESHOLD", &thresholdStr, log)
 
 	imgTok := strings.Split(img, "/")
@@ -47,11 +48,11 @@ func scanImage() {
 		ObjectMeta: metav1.ObjectMeta{Name: NAME, Namespace: ns},
 		Spec: regv1.ImageScanRequestSpec{
 			ScanTargets: []regv1.ScanTarget{{
-				RegistryURL:   imgTok[0],
-				Images:        []string{strings.Join(imgTok[1:], "/")},
-				ForceNonSSL:   true,
-				Insecure:      true,
-				ElasticSearch: true,
+				RegistryURL:     imgTok[0],
+				Images:          []string{strings.Join(imgTok[1:], "/")},
+				ImagePullSecret: credSecret,
+				Insecure:        true,
+				ElasticSearch:   true,
 			}},
 		},
 	}
