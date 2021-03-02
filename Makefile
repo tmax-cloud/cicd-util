@@ -6,62 +6,44 @@ VERSION  ?= latest
 CICD_UTIL_IMAGE_NAME = cicd-util
 CICD_UTIL_IMAGE      = $(REGISTRY)/$(CICD_UTIL_IMAGE_NAME):$(VERSION)
 
-SONAR_CLIENT_IMAGE_NAME = sonar-client
-SONAR_CLIENT_IMAGE      = $(REGISTRY)/$(SONAR_CLIENT_IMAGE_NAME):$(VERSION)
-
-
 .PHONY: all
 all: build image push
 
 cicd-util: bin/cicd-util image-cicd-util push-cicd-util
 
-sonar-client: bin/sonar-client image-sonar-client push-sonar-client
-
 .PHONY: build
-build: bin/cicd-util bin/sonar-client
+build: bin/cicd-util
 
 bin/%: cmd/%
 	CGO_ENABLED=0 go build -o $@ $(PACKAGE_NAME)/$<
 
 
-.PHONY: image image-cicd-util image-sonar-client
-image: image-cicd-util image-sonar-client
+.PHONY: image image-cicd-util
+image: image-cicd-util
 
 image-cicd-util:
 	docker build -f build/cicd-util/Dockerfile -t $(CICD_UTIL_IMAGE) .
 
-image-sonar-client:
-	docker build -f build/sonar-client/Dockerfile -t $(SONAR_CLIENT_IMAGE) .
 
-
-.PHONY: tag-latest tag-latest-cicd-util tag-latest-sonar-client
-tag-latest: tag-latest-cicd-util tag-latest-sonar-client
+.PHONY: tag-latest tag-latest-cicd-util
+tag-latest: tag-latest-cicd-util
 
 tag-latest-cicd-util:
 	docker tag $(CICD_UTIL_IMAGE) $(REGISTRY)/$(CICD_UTIL_IMAGE_NAME):latest
 
-tag-latest-sonar-client:
-	docker tag $(SONAR_CLIENT_IMAGE) $(REGISTRY)/$(SONAR_CLIENT_IMAGE_NAME):latest
 
-
-.PHONY: push push-cicd-util push-sonar-client
-push: push-cicd-util push-sonar-client
+.PHONY: push push-cicd-util
+push: push-cicd-util
 
 push-cicd-util:
 	docker push $(CICD_UTIL_IMAGE)
 
-push-sonar-client:
-	docker push $(SONAR_CLIENT_IMAGE)
 
-
-.PHONY: push-latest push-latest-cicd-util push-latest-sonar-client
-push-latest: push-latest-cicd-util push-latest-sonar-client
+.PHONY: push-latest push-latest-cicd-util
+push-latest: push-latest-cicd-util
 
 push-latest-cicd-util:
 	docker push $(REGISTRY)/$(CICD_UTIL_IMAGE_NAME):latest
-
-push-latest-sonar-client:
-	docker push $(REGISTRY)/$(SONAR_CLIENT_IMAGE_NAME):latest
 
 
 .PHONY: test test-verify save-sha-mod compare-sha-mod verify test-unit test-lint
@@ -93,7 +75,6 @@ test-lint:
 builder-images:
 	make -C builder-image/apache
 	make -C builder-image/django
-	make -C builder-image/jeus
 	make -C builder-image/nodejs
 	make -C builder-image/tomcat
 	make -C builder-image/wildfly
