@@ -4,14 +4,11 @@ VERSION  := 35
 
 URL = $(REGISTRY)/$(IMAGE):$(VERSION)
 
-ORIGINAL = centos/python-35-centos7
-
 .PHONY: all build push
 all: build push
 
 build:
-	docker pull $(ORIGINAL)
-	docker tag $(ORIGINAL) $(URL)
+	docker build -t $(URL) -f ./Dockerfile .
 
 push:
 	docker push $(URL)
