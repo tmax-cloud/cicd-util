@@ -1,5 +1,5 @@
 diff --git tomcat-8.5/maven-3.5.0/jdk-8/Dockerfile tomcat-8.5/maven-3.5.0/jdk-8/Dockerfile
-index c9161e7..5f4ddd0 100644
+index c9161e7..06e0f17 100644
 --- tomcat-8.5/maven-3.5.0/jdk-8/Dockerfile
 +++ tomcat-8.5/maven-3.5.0/jdk-8/Dockerfile
 @@ -7,14 +7,15 @@ MAINTAINER Sarcouy <sarcouy@protonmail.com>
@@ -46,7 +46,7 @@ index c9161e7..5f4ddd0 100644
 +    rm -rf /tomcat/webapps/ROOT
 +
 +# Tmax-cloud - install checkfile
-+RUN curl -L -s -o /usr/bin/checkfile https://github.com/cqbqdd11519/checkfile/releases/download/v0.0.1/checkfile && \
++RUN curl -L -s -o /usr/bin/checkfile https://github.com/cqbqdd11519/checkfile/releases/download/v0.0.2/checkfile && \
 +    chmod +x /usr/bin/checkfile
  
  USER 1001
