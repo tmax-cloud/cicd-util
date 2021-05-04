@@ -13,7 +13,7 @@ index 4deca5a..fefa43b 100644
  	// artifacts. Tag is used by default if this is not set.
  	IncrementalFromTag string
 diff --git pkg/build/strategies/dockerfile/dockerfile.go pkg/build/strategies/dockerfile/dockerfile.go
-index 7556a35..43cca32 100644
+index 7556a35..c69728b 100644
 --- pkg/build/strategies/dockerfile/dockerfile.go
 +++ pkg/build/strategies/dockerfile/dockerfile.go
 @@ -162,7 +162,11 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
@@ -29,7 +29,7 @@ index 7556a35..43cca32 100644
  
  	imageLabels := util.GenerateOutputImageLabels(builder.sourceInfo, config)
  	for k, v := range config.Labels {
-@@ -282,6 +286,31 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
+@@ -282,6 +286,35 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
  		buffer.WriteString("\n")
  	}
  
@@ -56,7 +56,11 @@ index 7556a35..43cca32 100644
 +	}
 +
 +	// Checkfile initiation
++	buffer.WriteString("USER root\n")
 +	buffer.WriteString("RUN [ -z \"$CHECK_FILES\" ] && echo 'Skipping checkfile initiation' || checkfile init\n")
++	if len(imageUser) > 0 && imageUser != "root" {
++		buffer.WriteString(fmt.Sprintf("USER %s\n", imageUser))
++	}
 +
  	if _, provided := providedScripts[constants.Run]; provided {
  		buffer.WriteString(fmt.Sprintf("CMD %s\n", sanitize(filepath.ToSlash(filepath.Join(scriptsDestDir, "run")))))
