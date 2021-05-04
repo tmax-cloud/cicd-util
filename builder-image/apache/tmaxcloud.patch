@@ -1,0 +1,15 @@
+diff --git 2.4/Dockerfile 2.4/Dockerfile
+index e752274..3de3f01 100644
+--- 2.4/Dockerfile
++++ 2.4/Dockerfile
+@@ -65,6 +65,10 @@ COPY ./root /
+ # Reset permissions of filesystem to default values
+ RUN /usr/libexec/httpd-prepare && rpm-file-permissions
+ 
++# Tmax-cloud - install checkfile
++RUN curl -L -s -o /usr/bin/checkfile https://github.com/cqbqdd11519/checkfile/releases/download/v0.0.1/checkfile && \
++    chmod +x /usr/bin/checkfile
++
+ USER 1001
+ 
+ # Not using VOLUME statement since it's not working in OpenShift Online:
