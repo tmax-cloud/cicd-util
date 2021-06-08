@@ -8,7 +8,7 @@ URL = $(REGISTRY)/$(IMAGE):$(VERSION)
 all: build push
 
 build:
-	docker build -t $(URL) -f ./Dockerfile .
+	docker build --no-cache -t $(URL) -f ./Dockerfile .
 
 push:
 	docker push $(URL)
