@@ -47,12 +47,11 @@ func scanImage() {
 	req := &regv1.ImageScanRequest{
 		ObjectMeta: metav1.ObjectMeta{Name: NAME, Namespace: ns},
 		Spec: regv1.ImageScanRequestSpec{
+			SendReport: true,
 			ScanTargets: []regv1.ScanTarget{{
 				RegistryURL:     imgTok[0],
 				Images:          []string{strings.Join(imgTok[1:], "/")},
 				ImagePullSecret: credSecret,
-				Insecure:        true,
-				ElasticSearch:   true,
 			}},
 		},
 	}

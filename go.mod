@@ -9,7 +9,7 @@ require (
 	github.com/operator-framework/operator-sdk v0.17.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/tidwall/gjson v1.6.0
-	github.com/tmax-cloud/registry-operator v0.1.2-0.20210119035521-370624778c32
+	github.com/tmax-cloud/registry-operator v0.3.5
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.19.4
 	k8s.io/apimachinery v0.19.4
