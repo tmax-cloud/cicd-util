@@ -5,7 +5,7 @@ index 4deca5a..fefa43b 100644
 @@ -122,6 +122,9 @@ type Config struct {
  	// Incremental describes whether to try to perform incremental build.
  	Incremental bool
-
+ 
 +	// ClearCache describes whether to clean cache or not
 +	ClearCache bool
 +
@@ -13,12 +13,12 @@ index 4deca5a..fefa43b 100644
  	// artifacts. Tag is used by default if this is not set.
  	IncrementalFromTag string
 diff --git pkg/build/strategies/dockerfile/dockerfile.go pkg/build/strategies/dockerfile/dockerfile.go
-index 7556a35..77da4dd 100644
+index 7556a35..c69728b 100644
 --- pkg/build/strategies/dockerfile/dockerfile.go
 +++ pkg/build/strategies/dockerfile/dockerfile.go
 @@ -162,7 +162,11 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
  	}
-
+ 
  	// main stage of the Dockerfile
 -	buffer.WriteString(fmt.Sprintf("FROM %s\n", config.BuilderImage))
 +	if config.ClearCache {
@@ -26,13 +26,13 @@ index 7556a35..77da4dd 100644
 +	} else {
 +		buffer.WriteString(fmt.Sprintf("FROM %s\n", config.BuilderImage))
 +	}
-
+ 
  	imageLabels := util.GenerateOutputImageLabels(builder.sourceInfo, config)
  	for k, v := range config.Labels {
-@@ -282,6 +286,28 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
+@@ -282,6 +286,35 @@ func (builder *Dockerfile) CreateDockerfile(config *api.Config) error {
  		buffer.WriteString("\n")
  	}
-
+ 
 +	if config.ClearCache {
 +		buffer.WriteString(fmt.Sprintf("FROM %s\n", config.BuilderImage))
 +
@@ -53,6 +53,13 @@ index 7556a35..77da4dd 100644
 +		buffer.WriteString(fmt.Sprintf("%s", env))
 +
 +		buffer.WriteString(fmt.Sprintf("COPY --from=build / /\n"))
++	}
++
++	// Checkfile initiation
++	buffer.WriteString("USER root\n")
++	buffer.WriteString("RUN [ -z \"$CHECK_FILES\" ] && echo 'Skipping checkfile initiation' || checkfile init\n")
++	if len(imageUser) > 0 && imageUser != "root" {
++		buffer.WriteString(fmt.Sprintf("USER %s\n", imageUser))
 +	}
 +
  	if _, provided := providedScripts[constants.Run]; provided {
