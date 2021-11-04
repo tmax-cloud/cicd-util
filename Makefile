@@ -1,4 +1,4 @@
-PACKAGE_NAME = github.com/cqbqdd11519/cicd-util
+PACKAGE_NAME = github.com/tmax-cloud/cicd-util
 
 REGISTRY ?= tmaxcloudck
 VERSION  ?= latest

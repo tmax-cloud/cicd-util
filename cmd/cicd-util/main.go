@@ -7,7 +7,7 @@ import (
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/cqbqdd11519/cicd-util/pkg/utils"
+	"github.com/tmax-cloud/cicd-util/pkg/utils"
 )
 
 var log = logf.Log.WithName("cicd-util")

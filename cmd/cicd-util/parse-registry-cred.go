@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cqbqdd11519/cicd-util/pkg/utils"
 	"github.com/tidwall/gjson"
+	"github.com/tmax-cloud/cicd-util/pkg/utils"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
