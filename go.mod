@@ -1,4 +1,4 @@
-module github.com/cqbqdd11519/cicd-util
+module github.com/tmax-cloud/cicd-util
 
 go 1.13
 

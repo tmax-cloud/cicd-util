@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 
-	"github.com/cqbqdd11519/cicd-util/pkg/utils"
+	"github.com/tmax-cloud/cicd-util/pkg/utils"
 )
 
 func updateImageUrl() {

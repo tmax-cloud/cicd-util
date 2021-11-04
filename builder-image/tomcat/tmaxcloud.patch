@@ -46,7 +46,7 @@ index c9161e7..06e0f17 100644
 +    rm -rf /tomcat/webapps/ROOT
 +
 +# Tmax-cloud - install checkfile
-+RUN curl -L -s -o /usr/bin/checkfile https://github.com/cqbqdd11519/checkfile/releases/download/v0.0.4/checkfile && \
++RUN curl -L -s -o /usr/bin/checkfile https://github.com/tmax-cloud/checkfile/releases/download/v0.0.4/checkfile && \
 +    chmod +x /usr/bin/checkfile
  
  USER 1001
